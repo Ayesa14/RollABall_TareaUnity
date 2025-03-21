@@ -16,8 +16,9 @@ public class PlayerController : MonoBehaviour
     private Animator animator; // Control de animaciones
     public PlayerImmortality playerImmortality; // Referencia a PlayerImmortality
 
+
     // Habilitar o deshabilitar el control por acelerómetro
-    public bool useAccelerometer = true;
+    public bool useAccelerometer = false;
 
     void Start()
     {
@@ -40,7 +41,7 @@ public class PlayerController : MonoBehaviour
     {
         Vector3 movement;
 
-        if (useAccelerometer)
+        if (useAccelerometer == true && SystemInfo.supportsAccelerometer)
         {
             // Movimiento con acelerómetro
             Vector3 dir = Vector3.zero;
@@ -55,6 +56,10 @@ public class PlayerController : MonoBehaviour
         else
         {
             // Movimiento con teclado/joystick
+            // Capturar input del teclado
+            float movementX = Input.GetAxis("Horizontal"); // Teclas A/D o Flechas izquierda/derecha
+            float movementY = Input.GetAxis("Vertical");   // Teclas W/S o Flechas arriba/abajo
+
             movement = new Vector3(movementX, 0.0f, movementY) * speed;
         }
 
