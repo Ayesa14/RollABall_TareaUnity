@@ -13,12 +13,11 @@ public class PlayerController : MonoBehaviour
     public TextMeshProUGUI countText;
     public GameObject winTextObject;
 
-    private Animator animator; // Control de animaciones
-    public PlayerImmortality playerImmortality; // Referencia a PlayerImmortality
-
+    private Animator animator;
+    public PlayerImmortality playerImmortality;
 
     // Habilitar o deshabilitar el control por acelerómetro
-    public bool useAccelerometer = false;
+    public bool useAccelerometer = true;
 
     void Start()
     {
@@ -26,8 +25,8 @@ public class PlayerController : MonoBehaviour
         count = 0;
         SetCountText();
         winTextObject.SetActive(false);
-        animator = GetComponent<Animator>(); // Obtiene el Animator
-        playerImmortality = GetComponent<PlayerImmortality>(); // Obtiene el script de inmortalidad
+        animator = GetComponent<Animator>();
+        playerImmortality = GetComponent<PlayerImmortality>();
     }
 
     void OnMove(InputValue movementValue)
@@ -39,39 +38,34 @@ public class PlayerController : MonoBehaviour
 
     private void FixedUpdate() 
     {
-        Vector3 movement;
+        Vector3 movement = Vector3.zero; // Evita acumulación de valores antiguos
 
-        if (useAccelerometer == true && SystemInfo.supportsAccelerometer)
+        if (useAccelerometer && SystemInfo.supportsAccelerometer)
         {
             // Movimiento con acelerómetro
-            Vector3 dir = Vector3.zero;
-            dir.x = -Input.acceleration.y; 
-            dir.z = Input.acceleration.x;
+            movement.x = -Input.acceleration.y;
+            movement.z = Input.acceleration.x;
 
-            if (dir.sqrMagnitude > 1)
-                dir.Normalize(); 
+            if (movement.sqrMagnitude > 1)
+                movement.Normalize(); 
 
-            movement = dir * speed;
+            movement *= speed;
         }
         else
         {
-            // Movimiento con teclado/joystick
-            // Capturar input del teclado
-            float movementX = Input.GetAxis("Horizontal"); // Teclas A/D o Flechas izquierda/derecha
-            float movementY = Input.GetAxis("Vertical");   // Teclas W/S o Flechas arriba/abajo
-
+            // Movimiento con teclado/joystick (usando variables globales)
             movement = new Vector3(movementX, 0.0f, movementY) * speed;
         }
 
         rb.AddForce(movement);
 
-        // Control de animaciones
+        // Control de animaciones (si el Animator existe)
         if (animator != null)
         {
             // Si recoge 9 PickUp, entra en estado Escapando
             if (count >= 9) 
             {
-                playerImmortality.StartEscaping();
+                playerImmortality?.StartEscaping(); // Previene error si es null
                 animator.SetBool("isEscaping", true);
             }
             else
@@ -79,8 +73,11 @@ public class PlayerController : MonoBehaviour
                 animator.SetBool("isEscaping", false);
             }
 
-            // Estado Inmortal
-            animator.SetBool("isImmortal", playerImmortality.currentState == PlayerImmortality.PlayerState.Immortal);
+            // Estado Inmortal (verificación para evitar error)
+            if (playerImmortality != null)
+            {
+                animator.SetBool("isImmortal", playerImmortality.currentState == PlayerImmortality.PlayerState.Immortal);
+            }
         }
     }
 
@@ -114,4 +111,3 @@ public class PlayerController : MonoBehaviour
         }
     }
 }
-

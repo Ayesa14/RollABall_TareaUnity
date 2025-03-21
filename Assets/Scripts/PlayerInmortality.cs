@@ -3,7 +3,7 @@ using System.Collections;
 
 public class PlayerImmortality : MonoBehaviour
 {
-    public enum PlayerState { Normal, Immortal, Escaping } // Ahora incluye "Escaping"
+    public enum PlayerState { Normal, Immortal, Escaping }; // Estados del jugador
     public PlayerState currentState = PlayerState.Normal; // Estado actual
 
     private Renderer playerRenderer;
